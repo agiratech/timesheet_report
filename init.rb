@@ -1,10 +1,10 @@
 Redmine::Plugin.register :timesheet_report do
-  name 'Team Work Chart'
-  author 'Agira'
-  description 'Plugin to draw charts for time spents for projects'
+  name 'Time sheet report'
+  author 'Agiratech'
+  description 'Plugin to draw charts for time sheet reports'
   version '0.0.1'
-  url 'http://agiratech.com'
-  author_url 'http://agiratech.com'
+  url 'http://www.agiratech.com/'
+  author_url 'http://www.agiratech.com'
 
   permission :charts, { :charts => [:index, :vote] }, :public => true
   menu :project_menu, :charts,
