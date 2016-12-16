@@ -12,5 +12,4 @@ Redmine::Plugin.register :timesheet_report do
     :caption => :charts,
     :last => :true,
     :param => :id
-
 end

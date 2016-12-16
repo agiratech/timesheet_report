@@ -1,129 +1,134 @@
+<% unless @custom_project_field.present? %>
+  <h1>Charts is not available</h1>
+  <p>Configure <b>custom filed</b> for <b>Spent time</b> with the name <b>Project Name</b></p>
+<% else %>
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
 
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script>
+    $( function() {
+      $( "#from_date" ).datepicker({
+        showOn: "button",
+        buttonImage: "/images/calendar.png",
+        buttonImageOnly: true,
+        buttonText: "Select date",
+        dateFormat: 'dd-mm-yy'
+      });
+      $( "#to_date" ).datepicker({
+        showOn: "button",
+        buttonImage: "/images/calendar.png",
+        buttonImageOnly: true,
+        buttonText: "Select date",
+        dateFormat: 'dd-mm-yy'
+      });
+    } );
+  </script>
 
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script>
-  $( function() {
-    $( "#from_date" ).datepicker({
-      showOn: "button",
-      buttonImage: "/images/calendar.png",
-      buttonImageOnly: true,
-      buttonText: "Select date",
-      dateFormat: 'dd-mm-yy'
-    });
-    $( "#to_date" ).datepicker({
-      showOn: "button",
-      buttonImage: "/images/calendar.png",
-      buttonImageOnly: true,
-      buttonText: "Select date",
-      dateFormat: 'dd-mm-yy'
-    });
-  } );
-</script>
+  <div style="margin:50px 0px 0px 25px;">
+    <form id="query_form" action="/projects/<%= params[:id] %>/charts" accept-charset="UTF-8" method="get">
+      <%if @current_user.admin %>
+        <%= select_tag :user_id, options_for_select(@users.collect{|user| [user.login.capitalize, user.id]}.prepend(["Select user", nil]), :selected => params[:user_id]), :onchange => "$('#query_form').submit();"%>
+      <%end%>
+      <%= select_tag :custom_project_name, options_for_select(@custom_project_field.possible_values.collect{|custom_project_name| [custom_project_name,custom_project_name]}.prepend(["Select project", nil]), :selected => params[:custom_project_name]), :onchange => "$('#query_form').submit();"%>
+      <span> &nbsp From &nbsp</span><input type="text" id="from_date" name="from_date" value="<%= @from.strftime("%d-%m-%Y") %>"  onchange="$('#query_form').submit();">
+      <span> &nbsp To &nbsp</span><input type="text" id="to_date" name="to_date" value="<%= @to.strftime("%d-%m-%Y") %>" onchange="$('#query_form').submit();">
+    </form>
+  </div>
+  <div id="project_time_spent" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
 
-<div style="margin:50px 0px 0px 25px">
-  <form id="query_form" action="/projects/<%= params[:id] %>/charts" accept-charset="UTF-8" method="get">
-    <%if @current_user.admin %><%= select_tag :user_id, options_for_select(@user.collect{|user| [user.login.capitalize, user.id]}.prepend(["Select user", nil]), :selected => params[:user_id]), :onchange => "$('#query_form').submit();"%>
-    <%end%>
-    <span> &nbsp From Date &nbsp</span><input type="text" id="from_date" name="from_date" value="<%= @from.strftime("%d-%m-%Y") %>"  onchange="$('#query_form').submit();">
-    <span> &nbsp To Date &nbsp</span><input type="text" id="to_date" name="to_date" value="<%= @to.strftime("%d-%m-%Y") %>" onchange="$('#query_form').submit();">
-  </form>
-</div>
-<div id="project_time_spent" style="margin: 25px auto"></div>
-
-<script>
-$(function () {
-  Highcharts.chart('project_time_spent', {
-    chart: {
-      type: 'column'
-    },
-    title: {
-      text: 'Time Spent vs Projects'
-    },
-    xAxis: {
-      type: 'category',
-      labels: {
-        rotation: -45,
-        style: {
-          fontSize: '13px',
-          fontFamily: 'Verdana, sans-serif'
-        }
-      }
-    },
-    yAxis: {
-      min: 0,
-      title: {
-        text: 'Time Spent (Hours)'
-      }
-    },
-    legend: {
-      enabled: false
-    },
-    tooltip: {
-      pointFormat: 'spent: <b>{point.y} Hours</b>'
-    },
-    series: [{
-      name: 'Category',
-      colorByPoint: true,
-      data: <%= raw @overall_time_spent_result %>,
-      dataLabels: {
-        enabled: true,
-        rotation: -90,
-        color: '#FFFFFF',
-        align: 'right',
-        format: '{point.y}', // one decimal
-        y: 10, // 10 pixels down from the top
-        style: {
-          fontSize: '13px',
-          fontFamily: 'Verdana, sans-serif'
-        }
-      }
-    }]
-  });
-});
-</script>
-
-
-
-<div id="project_time_spents" style="margin: 25px auto"></div>
-
-<script>
-$(function () {
-  Highcharts.chart('project_time_spents', {
-    chart: {
-      type: 'line'
-    },
-    title: {
-      text: 'Daily Time Spent vs Projects'
-    },
-    xAxis: {
-      categories: <%= raw @date_range %>
-    },
-    yAxis: {
-      title: {
-        text: 'Time Spent (Hours)'
-      }
-    },
-    plotOptions: {
-      line: {
-        dataLabels: {
-          enabled: true
-        },
-        enableMouseTracking: false
-      }
-    },
-    series: [
-      <% @date_wise_spent.each do |date_wise_spent| %>
-      {
-        name: "<%= date_wise_spent[:name] %>",
-        data: <%= date_wise_spent[:data] %>
+  <script>
+  $(function () {
+    Highcharts.chart('project_time_spent', {
+      chart: {
+        type: 'column'
       },
-      <% end %>
-    ]
+      title: {
+        text: 'Time Spent vs Projects'
+      },
+      xAxis: {
+        type: 'category',
+        labels: {
+          rotation: -45,
+          style: {
+            fontSize: '13px',
+            fontFamily: 'Verdana, sans-serif'
+          }
+        }
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: 'Time Spent (Hours)'
+        }
+      },
+      legend: {
+        enabled: false
+      },
+      tooltip: {
+        pointFormat: 'spent: <b>{point.y} Hours</b>'
+      },
+      series: [{
+        name: 'Category',
+        colorByPoint: true,
+        data: <%= raw @overall_time_spent_result %>,
+        dataLabels: {
+          enabled: true,
+          rotation: -90,
+          color: '#FFFFFF',
+          align: 'right',
+          format: '{point.y}', // one decimal
+          y: 10, // 10 pixels down from the top
+          style: {
+            fontSize: '13px',
+            fontFamily: 'Verdana, sans-serif'
+          }
+        }
+      }]
+    });
   });
-});
-</script>
+  </script>
 
+
+
+  <div id="project_time_spents" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+
+  <script>
+  $(function () {
+    Highcharts.chart('project_time_spents', {
+      chart: {
+        type: 'line'
+      },
+      title: {
+        text: 'Daily Time Spent vs Projects'
+      },
+      xAxis: {
+        categories: <%= raw @date_range %>
+      },
+      yAxis: {
+        title: {
+          text: 'Time Spent (Hours)'
+        }
+      },
+      plotOptions: {
+        line: {
+          dataLabels: {
+            enabled: true
+          },
+          enableMouseTracking: false
+        }
+      },
+      series: [
+        <% @date_wise_spent.each do |date_wise_spent| %>
+        {
+          name: "<%= date_wise_spent[:name] %>",
+          data: <%= date_wise_spent[:data] %>
+        },
+        <% end %>
+      ]
+    });
+  });
+  </script>
+<%end%>
