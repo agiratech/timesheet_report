@@ -129,11 +129,12 @@ class ChartsController < ApplicationController
       @from = params[:from_date].present? ? params[:from_date].to_date : @date.beginning_of_month
       @to = params[:to_date].present? ? params[:to_date].to_date : @date.end_of_month
       @current_user = find_current_user
+      user_id = @current_user.admin ? params[:user_id] :  @current_user.id
       @users = User.where("type =?", "User").order("login ASC")
-
+      puts user_id
       @query = TimeEntryQuery.build_from_params(params, :project => @project, :name => '_')
       scope = time_entry_scope.where(:spent_on => @from..@to)
-      scope = scope.where("user_id =?", params[:user_id]) if params[:user_id].present?
+      scope = scope.where("user_id =?", user_id) if user_id.present?
       # @report = Redmine::Helpers::TimeReport.new(@project, @issue, [@custom_filter_type], "month", scope)
       @reports = Redmine::Helpers::TimeReport.new(@project, @issue, ["user", @custom_filter_type], "day", scope)
     end
