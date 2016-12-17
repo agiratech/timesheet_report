@@ -29,10 +29,22 @@
 
   <div style="margin:50px 0px 0px 25px;">
     <form id="query_form" action="/projects/<%= params[:id] %>/charts" accept-charset="UTF-8" method="get">
-      <%if @current_user.admin %>
-        <%= select_tag :user_id, options_for_select(@users.collect{|user| [user.login.capitalize, user.id]}.prepend(["Select user", nil]), :selected => params[:user_id]), :onchange => "$('#query_form').submit();"%>
+      <%= select_tag :chart_type, options_for_select([["Select report type", nil],["User", "user"],["Project", "project"]], :selected => params[:chart_type]), :onchange => "$('#query_form').submit();"%>
+      <% if params[:chart_type] == "project" %>
+        &nbsp
+        <%= select_tag :custom_project_name, options_for_select(@custom_project_field.possible_values.collect{|custom_project_name| [custom_project_name,custom_project_name]}.prepend(["Select project", nil]), :selected => params[:custom_project_name]), :onchange => "$('#query_form').submit();"%>
+        <%if @current_user.admin %>
+          &nbsp
+          <%= select_tag :user_id, options_for_select(@users.collect{|user| [user.firstname.capitalize + " " + user.lastname, user.id]}.prepend(["Select user", nil]), :selected => params[:user_id]), :onchange => "$('#query_form').submit();"%>
+        <%end%>
+      <%else%>
+        <%if @current_user.admin %>
+          &nbsp
+          <%= select_tag :user_id, options_for_select(@users.collect{|user| [user.firstname.capitalize + " " + user.lastname, user.id]}.prepend(["Select user", nil]), :selected => params[:user_id]), :onchange => "$('#query_form').submit();"%>
+        <%end%>
+        &nbsp
+        <%= select_tag :custom_project_name, options_for_select(@custom_project_field.possible_values.collect{|custom_project_name| [custom_project_name,custom_project_name]}.prepend(["Select project", nil]), :selected => params[:custom_project_name]), :onchange => "$('#query_form').submit();"%>
       <%end%>
-      <%= select_tag :custom_project_name, options_for_select(@custom_project_field.possible_values.collect{|custom_project_name| [custom_project_name,custom_project_name]}.prepend(["Select project", nil]), :selected => params[:custom_project_name]), :onchange => "$('#query_form').submit();"%>
       <span> &nbsp From &nbsp</span><input type="text" id="from_date" name="from_date" value="<%= @from.strftime("%d-%m-%Y") %>"  onchange="$('#query_form').submit();">
       <span> &nbsp To &nbsp</span><input type="text" id="to_date" name="to_date" value="<%= @to.strftime("%d-%m-%Y") %>" onchange="$('#query_form').submit();">
     </form>
@@ -46,7 +58,7 @@
         type: 'column'
       },
       title: {
-        text: 'Time Spent vs Projects'
+        text: "<%= @chart1_title %>"
       },
       xAxis: {
         type: 'category',
@@ -102,7 +114,7 @@
         type: 'line'
       },
       title: {
-        text: 'Daily Time Spent vs Projects'
+        text: "<%= @chart2_title %>"
       },
       xAxis: {
         categories: <%= raw @date_range %>
