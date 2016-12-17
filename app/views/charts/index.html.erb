@@ -49,98 +49,187 @@
       <span> &nbsp To &nbsp</span><input type="text" id="to_date" name="to_date" value="<%= @to.strftime("%d-%m-%Y") %>" onchange="$('#query_form').submit();">
     </form>
   </div>
-  <div id="project_time_spent" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+  <% if params[:chart_type] == "project" %>
+    <div id="overall_user_time_spent_result" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+    <div id="date_wise_user_spent" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+    <div id="overall_project_time_spent_result" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+    <div id="date_wise_project_spent" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+  <% else %>
+    <div id="overall_project_time_spent_result" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+    <div id="date_wise_project_spent" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+    <div id="overall_user_time_spent_result" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+    <div id="date_wise_user_spent" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
+  <% end %>
 
   <script>
-  $(function () {
-    Highcharts.chart('project_time_spent', {
-      chart: {
-        type: 'column'
-      },
-      title: {
-        text: "<%= @chart1_title %>"
-      },
-      xAxis: {
-        type: 'category',
-        labels: {
-          rotation: -45,
-          style: {
-            fontSize: '13px',
-            fontFamily: 'Verdana, sans-serif'
-          }
-        }
-      },
-      yAxis: {
-        min: 0,
-        title: {
-          text: 'Time Spent (Hours)'
-        }
-      },
-      legend: {
-        enabled: false
-      },
-      tooltip: {
-        pointFormat: 'spent: <b>{point.y} Hours</b>'
-      },
-      series: [{
-        name: 'Category',
-        colorByPoint: true,
-        data: <%= raw @overall_time_spent_result %>,
-        dataLabels: {
-          enabled: true,
-          rotation: -90,
-          color: '#FFFFFF',
-          align: 'right',
-          format: '{point.y}', // one decimal
-          y: 10, // 10 pixels down from the top
-          style: {
-            fontSize: '13px',
-            fontFamily: 'Verdana, sans-serif'
-          }
-        }
-      }]
-    });
-  });
-  </script>
-
-
-
-  <div id="project_time_spents" style="margin: 25px auto;border-bottom: 1px solid #bbb;"></div>
-
-  <script>
-  $(function () {
-    Highcharts.chart('project_time_spents', {
-      chart: {
-        type: 'line'
-      },
-      title: {
-        text: "<%= @chart2_title %>"
-      },
-      xAxis: {
-        categories: <%= raw @date_range %>
-      },
-      yAxis: {
-        title: {
-          text: 'Time Spent (Hours)'
-        }
-      },
-      plotOptions: {
-        line: {
-          dataLabels: {
-            enabled: true
-          },
-          enableMouseTracking: false
-        }
-      },
-      series: [
-        <% @date_wise_spent.each do |date_wise_spent| %>
-        {
-          name: "<%= date_wise_spent[:name] %>",
-          data: <%= date_wise_spent[:data] %>
+    $(function () {
+      Highcharts.chart('overall_user_time_spent_result', {
+        chart: {
+          type: 'column'
         },
-        <% end %>
-      ]
+        title: {
+          text: "<%= @chart1_title %>"
+        },
+        xAxis: {
+          type: 'category',
+          labels: {
+            rotation: -45,
+            style: {
+              fontSize: '13px',
+              fontFamily: 'Verdana, sans-serif'
+            }
+          }
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Time Spent (Hours)'
+          }
+        },
+        legend: {
+          enabled: false
+        },
+        tooltip: {
+          pointFormat: 'spent: <b>{point.y} Hours</b>'
+        },
+        series: [{
+          name: 'Category',
+          colorByPoint: true,
+          data: <%= raw @overall_user_time_spent_result %>,
+          dataLabels: {
+            enabled: true,
+            rotation: -90,
+            color: '#FFFFFF',
+            align: 'right',
+            format: '{point.y}', // one decimal
+            y: 10, // 10 pixels down from the top
+            style: {
+              fontSize: '13px',
+              fontFamily: 'Verdana, sans-serif'
+            }
+          }
+        }]
+      });
     });
-  });
+
+    $(function () {
+      Highcharts.chart('date_wise_user_spent', {
+        chart: {
+          type: 'line'
+        },
+        title: {
+          text: "<%= @chart2_title %>"
+        },
+        xAxis: {
+          categories: <%= raw @date_range %>
+        },
+        yAxis: {
+          title: {
+            text: 'Time Spent (Hours)'
+          }
+        },
+        plotOptions: {
+          line: {
+            dataLabels: {
+              enabled: true
+            },
+            enableMouseTracking: false
+          }
+        },
+        series: [
+          <% @date_wise_user_spent.each do |date_wise_spent| %>
+          {
+            name: "<%= date_wise_spent[:name] %>",
+            data: <%= date_wise_spent[:data] %>
+          },
+          <% end %>
+        ]
+      });
+    });
+
+    $(function () {
+      Highcharts.chart('overall_project_time_spent_result', {
+        chart: {
+          type: 'column'
+        },
+        title: {
+          text: "<%= @chart3_title %>"
+        },
+        xAxis: {
+          type: 'category',
+          labels: {
+            rotation: -45,
+            style: {
+              fontSize: '13px',
+              fontFamily: 'Verdana, sans-serif'
+            }
+          }
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Time Spent (Hours)'
+          }
+        },
+        legend: {
+          enabled: false
+        },
+        tooltip: {
+          pointFormat: 'spent: <b>{point.y} Hours</b>'
+        },
+        series: [{
+          name: 'Category',
+          colorByPoint: true,
+          data: <%= raw @overall_project_time_spent_result %>,
+          dataLabels: {
+            enabled: true,
+            rotation: -90,
+            color: '#FFFFFF',
+            align: 'right',
+            format: '{point.y}', // one decimal
+            y: 10, // 10 pixels down from the top
+            style: {
+              fontSize: '13px',
+              fontFamily: 'Verdana, sans-serif'
+            }
+          }
+        }]
+      });
+    });
+
+    $(function () {
+      Highcharts.chart('date_wise_project_spent', {
+        chart: {
+          type: 'line'
+        },
+        title: {
+          text: "<%= @chart4_title %>"
+        },
+        xAxis: {
+          categories: <%= raw @date_range %>
+        },
+        yAxis: {
+          title: {
+            text: 'Time Spent (Hours)'
+          }
+        },
+        plotOptions: {
+          line: {
+            dataLabels: {
+              enabled: true
+            },
+            enableMouseTracking: false
+          }
+        },
+        series: [
+          <% @date_wise_project_spent.each do |date_wise_spent| %>
+          {
+            name: "<%= date_wise_spent[:name] %>",
+            data: <%= date_wise_spent[:data] %>
+          },
+          <% end %>
+        ]
+      });
+    });
   </script>
 <%end%>
